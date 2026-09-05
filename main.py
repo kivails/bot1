@@ -62,10 +62,8 @@ async def generate_qr(amount: float):
                 content={"status": "error", "message": "Минимальная сумма 1 USDT"}
             )
         
-        # Формируем строку для оплаты
         payment_data = f"tron:{TRC20_ADDRESS}?amount={amount}&token=USDT"
         
-        # Создаём QR-код
         qr = qrcode.QRCode(
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_H,
@@ -75,15 +73,12 @@ async def generate_qr(amount: float):
         qr.add_data(payment_data)
         qr.make(fit=True)
         
-        # Создаём изображение
         img = qr.make_image(fill_color="black", back_color="white")
         
-        # Конвертируем в base64
         buffered = BytesIO()
         img.save(buffered, format="PNG")
         img_str = base64.b64encode(buffered.getvalue()).decode()
         
-        # Возвращаем HTML с картинкой
         return HTMLResponse(
             content=f'<img src="data:image/png;base64,{img_str}" style="max-width:300px; width:100%; border-radius:12px; background:white; padding:10px;"/>'
         )
