@@ -12,7 +12,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 TRC20_ADDRESS = "TDxz3pfEEBEvwx2pcFzRXipemkX2ibM6L4"
 
 # Данные для Telegram Web App
-BOT_USERNAME = "твой_бот"  # Без @
+BOT_USERNAME = "PaydaysProcBot"  # Без @
 WEBAPP_URL = "https://bot1-eorx.onrender.com"  # Замени на реальный URL
 
 @app.get("/", response_class=HTMLResponse)
