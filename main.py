@@ -9,11 +9,11 @@ templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ТВОЙ TRC20 АДРЕС (ЗАМЕНИ!)
-TRC20_ADDRESS = "TМ...сюда_твой_адрес"
+TRC20_ADDRESS = "TDxz3pfEEBEvwx2pcFzRXipemkX2ibM6L4"
 
 # Данные для Telegram Web App
 BOT_USERNAME = "твой_бот"  # Без @
-WEBAPP_URL = "https://твой-сайт.ru"  # Замени на реальный URL
+WEBAPP_URL = "https://bot1-eorx.onrender.com"  # Замени на реальный URL
 
 @app.get("/", response_class=HTMLResponse)
 async def landing(request: Request):
