@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PayDays</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            margin: 0;
+        }
+
+        /* Адаптация под Telegram */
+        body.tg-theme {
+            background: var(--tg-theme-bg-color, #0a0a0a);
+            color: var(--tg-theme-text-color, #ffffff);
+        }
+
+        .container {
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(10, 10, 10, 0.92);
+            border: 1px solid rgba(200, 0, 0, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            animation: fadeUp 0.5s ease-out;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            font-size: 56px;
+            display: block;
+            margin-bottom: 8px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { filter: drop-shadow(0 0 10px rgba(200, 0, 0, 0.3)); }
+            100% { filter: drop-shadow(0 0 30px rgba(200, 0, 0, 0.7)); }
+        }
+
+        h1 {
+            font-size: 40px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffffff 0%, #ff4444 60%, #cc0000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+        }
+
+        .subtitle span {
+            color: #ff3333;
+            font-weight: 700;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-insurance {
+            background: linear-gradient(135deg, #cc0000, #8b0000);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(200, 0, 0, 0.3);
+            border: 1px solid rgba(255, 50, 50, 0.2);
+        }
+
+        .btn-insurance:hover {
+            box-shadow: 0 6px 30px rgba(200, 0, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-working {
+            background: linear-gradient(135deg, #ffffff, #e0e0e0);
+            color: #1a0000;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-working:hover {
+            box-shadow: 0 6px 30px rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(200, 0, 0, 0.15);
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .stat-item {
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-item strong {
+            display: block;
+            font-size: 20px;
+            color: #ff3333;
+            font-weight: 800;
+            margin-top: 3px;
+        }
+
+        .telegram-hint {
+            margin-top: 20px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .telegram-hint svg {
+            width: 18px;
+            height: 18px;
+            fill: rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 400px) {
+            .container { padding: 20px 16px; }
+            h1 { font-size: 32px; }
+            .logo { font-size: 44px; }
+            .btn { font-size: 14px; padding: 14px; }
+            .stat-item strong { font-size: 17px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <span class="logo">⚡</span>
+        <h1>PayDays</h1>
+        <div class="subtitle"><span>✦</span> Выберите тип депозита <span>✦</span></div>
+
+        <div class="buttons">
+            <a href="/deposit?type=insurance" class="btn btn-insurance">
+                🛡️ Страховой депозит
+            </a>
+            <a href="/deposit?type=working" class="btn btn-working">
+                ⚡ Рабочий депозит
+            </a>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                Активных
+                <strong>1,284</strong>
+            </div>
+            <div class="stat-item">
+                Выплачено
+                <strong>$2.4M</strong>
+            </div>
+            <div class="stat-item">
+                Онлайн
+                <strong>42</strong>
+            </div>
+        </div>
+
+        <div class="telegram-hint">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+            Работает через Telegram Web App
+        </div>
+    </div>
+
+    <script>
+        // Интеграция с Telegram
+        if (window.Telegram && Telegram.WebApp) {
+            const tg = Telegram.WebApp;
+            tg.expand(); // Растягиваем на весь экран
+            tg.ready();
+
+            // Меняем тему под Telegram
+            document.body.classList.add('tg-theme');
+            document.body.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#0a0a0a');
+            document.body.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#ffffff');
+
+            // Обработка нажатий на кнопки через WebApp
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    tg.HapticFeedback.impactOccurred('medium');
+                });
+            });
+        }
+    </script>
+</body>
+</html>
