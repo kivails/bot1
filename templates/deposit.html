@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PayDays — Оплата</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -18,11 +17,6 @@
             margin: 0;
         }
 
-        body.tg-theme {
-            background: var(--tg-theme-bg-color, #0a0a0a);
-            color: var(--tg-theme-text-color, #ffffff);
-        }
-
         .card {
             max-width: 420px;
             width: 100%;
@@ -31,13 +25,6 @@
             border-radius: 24px;
             border: 1px solid rgba(200, 0, 0, 0.2);
             box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            animation: fadeUp 0.5s ease-out;
-        }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .card-header {
@@ -63,7 +50,6 @@
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             background: rgba(200, 0, 0, 0.2);
             border: 1px solid rgba(200, 0, 0, 0.25);
             color: #ff6666;
@@ -81,7 +67,6 @@
             border-radius: 14px;
             border: 1px solid rgba(200, 0, 0, 0.1);
             margin: 16px 0;
-            position: relative;
         }
 
         .address-label {
@@ -117,19 +102,8 @@
             color: #fff;
             font-size: 12px;
             cursor: pointer;
-            transition: all 0.3s;
             white-space: nowrap;
             flex-shrink: 0;
-        }
-
-        .copy-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .copy-btn.copied {
-            background: rgba(46, 160, 67, 0.3);
-            border-color: #2ea043;
-            color: #3fb950;
         }
 
         .full-address {
@@ -148,12 +122,10 @@
             background: rgba(255, 255, 255, 0.05);
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
         }
 
         .qr-container.show {
             display: block;
-            animation: fadeUp 0.5s ease-out;
         }
 
         .qr-container img {
@@ -204,16 +176,6 @@
             font-family: 'Courier New', monospace;
         }
 
-        .timer.warning {
-            color: #ff8800;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
         .form-group {
             margin: 18px 0;
         }
@@ -252,19 +214,12 @@
             color: #fff;
             font-size: 20px;
             font-weight: 600;
-            transition: all 0.3s;
             outline: none;
-            -webkit-appearance: none;
         }
 
         input:focus {
             border-color: #ff3333;
             box-shadow: 0 0 20px rgba(200, 0, 0, 0.1);
-            background: rgba(0, 0, 0, 0.7);
-        }
-
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.1);
         }
 
         .btn-pay {
@@ -278,19 +233,12 @@
             font-size: 18px;
             font-weight: 800;
             cursor: pointer;
-            transition: all 0.3s;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            box-shadow: 0 4px 25px rgba(200, 0, 0, 0.25);
         }
 
         .btn-pay:active {
             transform: scale(0.96);
-        }
-
-        .btn-pay:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         .btn-qr {
@@ -304,20 +252,6 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-qr:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .btn-qr:active {
-            transform: scale(0.96);
-        }
-
-        .btn-qr:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
         }
 
         .social-buttons {
@@ -333,24 +267,15 @@
             border-radius: 12px;
             font-size: 14px;
             font-weight: 600;
-            cursor: pointer;
             text-decoration: none;
             text-align: center;
-            transition: all 0.3s;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .social-btn:active {
             transform: scale(0.96);
-        }
-
-        .social-btn.telegram {
-            background: linear-gradient(135deg, #0088cc, #005f8a);
-            color: #fff;
-        }
-
-        .social-btn.support {
-            background: linear-gradient(135deg, #2ea043, #1a7a32);
-            color: #fff;
         }
 
         .back-link {
@@ -360,46 +285,41 @@
             color: rgba(255, 255, 255, 0.2);
             text-decoration: none;
             font-size: 13px;
-            transition: all 0.3s;
-            letter-spacing: 0.5px;
         }
 
         .back-link:hover {
             color: #ff4444;
         }
 
-        .success-message {
+        .message {
             display: none;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 12px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
             background: rgba(46, 160, 67, 0.15);
             border: 1px solid #2ea043;
-            border-radius: 12px;
-            padding: 12px;
-            margin-top: 12px;
             color: #3fb950;
-            font-size: 14px;
-            text-align: center;
         }
 
-        .success-message.show {
-            display: block;
-            animation: fadeUp 0.3s ease-out;
-        }
-
-        .timeout-message {
-            display: none;
+        .message.error {
             background: rgba(200, 0, 0, 0.15);
             border: 1px solid #cc0000;
-            border-radius: 12px;
-            padding: 12px;
-            margin-top: 12px;
             color: #ff4444;
-            font-size: 14px;
-            text-align: center;
         }
 
-        .timeout-message.show {
-            display: block;
-            animation: fadeUp 0.3s ease-out;
+        .message.info {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
         }
 
         @media (max-width: 400px) {
@@ -426,131 +346,101 @@
             </div>
         </div>
 
-        <!-- Адрес с кнопкой копирования -->
+        <!-- Адрес -->
         <div class="address-box">
             <div class="address-label">📤 Адрес TRC20</div>
             <div class="address-wrapper">
                 <div class="address">
                     {{ address[:6] }}<span class="highlight">...</span>{{ address[-6:] }}
                 </div>
-                <button class="copy-btn" id="copyBtn">📋 Копировать</button>
+                <button class="copy-btn" onclick="copyAddress()">📋 Копировать</button>
             </div>
             <div class="full-address">{{ address }}</div>
         </div>
 
         <!-- Таймер -->
-        <div class="timer-container" id="timerContainer">
+        <div class="timer-container">
             <div style="font-size:12px; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">
                 ⏱️ Время на оплату
             </div>
             <div class="timer" id="timer">10:00</div>
         </div>
 
-        <!-- Форма оплаты -->
-        <form id="paymentForm" onsubmit="return false;">
-            <div class="form-group">
-                <label for="amount">💰 Сумма (USDT)</label>
-                <div class="input-wrapper">
-                    <input type="number" id="amount" name="amount" step="0.1" min="1" placeholder="0.00" required>
-                </div>
+        <!-- Форма -->
+        <div class="form-group">
+            <label for="amount">💰 Сумма (USDT)</label>
+            <div class="input-wrapper">
+                <input type="number" id="amount" step="0.1" min="1" placeholder="0.00">
             </div>
-            
-            <button type="button" class="btn-pay" id="payBtn">✅ Оплатить</button>
-            
-            <button type="button" class="btn-qr" id="qrBtn">📱 Показать QR-код</button>
-        </form>
+        </div>
+
+        <button class="btn-pay" onclick="submitPayment()">✅ Оплатить</button>
+        <button class="btn-qr" onclick="showQR()">📱 Показать QR-код</button>
 
         <!-- QR-код -->
         <div id="qrContainer" class="qr-container">
             <div id="qrImage"></div>
-            <div class="qr-hint">
-                📸 Отсканируйте камерой телефона
-            </div>
+            <div class="qr-hint">📸 Отсканируйте камерой телефона</div>
             <div class="qr-error" id="qrError">
                 ⚠️ Не загружается? 
-                <a href="#" id="qrOpenLink" target="_blank">Открыть изображение в новой вкладке</a>
+                <a href="#" id="qrOpenLink" target="_blank">Открыть в новой вкладке</a>
             </div>
         </div>
 
-        <!-- Сообщение об успехе -->
-        <div id="successMessage" class="success-message">
-            ✅ Заявка отправлена! Оплатите по адресу выше.
-        </div>
-
-        <!-- Сообщение о таймауте -->
-        <div id="timeoutMessage" class="timeout-message">
-            ⏰ Время вышло! Заявка отменена. Начните заново.
-        </div>
+        <!-- Сообщения -->
+        <div id="message" class="message"></div>
 
         <!-- Социальные кнопки -->
         <div class="social-buttons">
-            <a href="https://t.me/MIAYBESENDs" target="_blank" class="social-btn telegram">
-                📢 Канал
-            </a>
-            <a href="https://t.me/MIAYBESEND" target="_blank" class="social-btn support">
-                💬 Поддержка
-            </a>
+            <span class="social-btn">📢 —</span>
+            <span class="social-btn">💬 —</span>
         </div>
 
         <a href="/" class="back-link">← На главную</a>
     </div>
 
     <script>
-        // ==================== ТЕЛЕГРАМ ====================
-        if (window.Telegram && Telegram.WebApp) {
-            const tg = Telegram.WebApp;
-            tg.expand();
-            tg.ready();
-
-            document.body.classList.add('tg-theme');
-            document.body.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#0a0a0a');
-            document.body.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#ffffff');
-        }
-
-        // ==================== ЭЛЕМЕНТЫ ====================
+        // ==================== ДАННЫЕ ====================
         const address = "{{ address }}";
-        const copyBtn = document.getElementById('copyBtn');
-        const amountInput = document.getElementById('amount');
-        const payBtn = document.getElementById('payBtn');
-        const qrBtn = document.getElementById('qrBtn');
-        const qrContainer = document.getElementById('qrContainer');
-        const qrImage = document.getElementById('qrImage');
-        const qrError = document.getElementById('qrError');
-        const qrOpenLink = document.getElementById('qrOpenLink');
-        const successMsg = document.getElementById('successMessage');
-        const timeoutMsg = document.getElementById('timeoutMessage');
-        const timerDisplay = document.getElementById('timer');
-        const timerContainer = document.getElementById('timerContainer');
-
         let timerInterval = null;
         let timeLeft = 600;
         let isTimerRunning = false;
         let currentAmount = null;
 
+        // ==================== СООБЩЕНИЯ ====================
+        function showMessage(text, type = 'info') {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message show ' + type;
+            setTimeout(() => {
+                msg.classList.remove('show');
+            }, 5000);
+        }
+
         // ==================== КОПИРОВАНИЕ ====================
-        copyBtn.addEventListener('click', function() {
+        function copyAddress() {
+            const btn = document.querySelector('.copy-btn');
             navigator.clipboard.writeText(address).then(() => {
-                copyBtn.textContent = '✅ Скопировано!';
-                copyBtn.classList.add('copied');
+                btn.textContent = '✅ Готово!';
                 setTimeout(() => {
-                    copyBtn.textContent = '📋 Копировать';
-                    copyBtn.classList.remove('copied');
+                    btn.textContent = '📋 Копировать';
                 }, 2000);
+                showMessage('✅ Адрес скопирован!', 'success');
             }).catch(() => {
-                const textarea = document.createElement('textarea');
-                textarea.value = address;
-                document.body.appendChild(textarea);
-                textarea.select();
+                // fallback
+                const ta = document.createElement('textarea');
+                ta.value = address;
+                document.body.appendChild(ta);
+                ta.select();
                 document.execCommand('copy');
-                document.body.removeChild(textarea);
-                copyBtn.textContent = '✅ Скопировано!';
-                copyBtn.classList.add('copied');
+                document.body.removeChild(ta);
+                btn.textContent = '✅ Готово!';
                 setTimeout(() => {
-                    copyBtn.textContent = '📋 Копировать';
-                    copyBtn.classList.remove('copied');
+                    btn.textContent = '📋 Копировать';
                 }, 2000);
+                showMessage('✅ Адрес скопирован!', 'success');
             });
-        });
+        }
 
         // ==================== ТАЙМЕР ====================
         function startTimer() {
@@ -572,30 +462,18 @@
         }
 
         function updateTimerDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            
-            if (timeLeft <= 60) {
-                timerDisplay.classList.add('warning');
-            } else {
-                timerDisplay.classList.remove('warning');
-            }
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
         }
 
         function handleTimeout() {
-            payBtn.disabled = true;
-            qrBtn.disabled = true;
-            amountInput.disabled = true;
-            
-            timeoutMsg.classList.add('show');
-            successMsg.classList.remove('show');
-            qrContainer.classList.remove('show');
-            timerDisplay.textContent = '⏰ Время вышло!';
-            
-            if (window.Telegram && Telegram.WebApp) {
-                Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-            }
+            document.querySelector('.btn-pay').disabled = true;
+            document.querySelector('.btn-qr').disabled = true;
+            document.getElementById('amount').disabled = true;
+            showMessage('⏰ Время вышло! Начните заново.', 'error');
+            document.getElementById('timer').textContent = '⏰ Время вышло!';
         }
 
         function resetTimer() {
@@ -606,36 +484,34 @@
             isTimerRunning = false;
             timeLeft = 600;
             updateTimerDisplay();
-            timerDisplay.classList.remove('warning');
-            
-            payBtn.disabled = false;
-            qrBtn.disabled = false;
-            amountInput.disabled = false;
-            timeoutMsg.classList.remove('show');
-            successMsg.classList.remove('show');
+            document.querySelector('.btn-pay').disabled = false;
+            document.querySelector('.btn-qr').disabled = false;
+            document.getElementById('amount').disabled = false;
+            document.getElementById('qrContainer').classList.remove('show');
         }
 
-        // ==================== ОТПРАВКА ЗАЯВКИ ====================
+        // ==================== ОТПРАВКА ====================
         async function submitPayment() {
-            const amount = amountInput.value;
+            const amount = document.getElementById('amount').value;
 
             if (!amount || amount <= 0) {
-                alert('Введите сумму!');
+                showMessage('❌ Введите сумму!', 'error');
                 return;
             }
 
             if (amount < 1) {
-                alert('Минимальная сумма 1 USDT');
+                showMessage('❌ Минимальная сумма 1 USDT', 'error');
                 return;
             }
 
             if (isTimerRunning && timeLeft <= 0) {
-                alert('Время вышло! Начните заново.');
+                showMessage('⏰ Время вышло! Начните заново.', 'error');
                 return;
             }
 
-            payBtn.disabled = true;
-            payBtn.textContent = '⏳ Отправка...';
+            const btn = document.querySelector('.btn-pay');
+            btn.textContent = '⏳ Отправка...';
+            btn.disabled = true;
 
             try {
                 const response = await fetch('/payment', {
@@ -643,12 +519,90 @@
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: `amount=${amount}`
+                    body: 'amount=' + amount
                 });
 
                 const result = await response.json();
 
                 if (result.status === 'ok') {
-                    successMsg.textContent = `✅ Заявка на ${amount} USDT отправлена!`;
-                    successMsg.classList.add('show');
-                    payBtn.textCont
+                    showMessage('✅ Заявка на ' + amount + ' USDT отправлена!', 'success');
+                    btn.textContent = '✅ Готово';
+                    currentAmount = amount;
+                    
+                    setTimeout(() => {
+                        showQR();
+                    }, 500);
+                } else {
+                    showMessage('❌ Ошибка! Попробуйте ещё раз.', 'error');
+                    btn.textContent = '✅ Оплатить';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                showMessage('❌ Ошибка соединения!', 'error');
+                btn.textContent = '✅ Оплатить';
+                btn.disabled = false;
+            }
+        }
+
+        // ==================== QR-КОД ====================
+        async function showQR() {
+            const amount = document.getElementById('amount').value;
+
+            if (!amount || amount <= 0) {
+                showMessage('❌ Сначала введите сумму!', 'error');
+                return;
+            }
+
+            if (amount < 1) {
+                showMessage('❌ Минимальная сумма 1 USDT', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/qr/' + amount);
+                const html = await response.text();
+                
+                document.getElementById('qrImage').innerHTML = html;
+                document.getElementById('qrContainer').classList.add('show');
+                document.getElementById('qrError').classList.remove('show');
+                
+                const img = document.querySelector('#qrImage img');
+                if (img) {
+                    document.getElementById('qrOpenLink').href = img.src;
+                }
+                
+                if (!isTimerRunning) {
+                    startTimer();
+                }
+                
+                showMessage('📱 Отсканируйте QR-код', 'info');
+                
+            } catch (error) {
+                document.getElementById('qrError').classList.add('show');
+                showMessage('❌ Ошибка загрузки QR-кода', 'error');
+            }
+        }
+
+        // Открытие QR в новой вкладке
+        document.getElementById('qrOpenLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.open(this.href, '_blank');
+        });
+
+        // ==================== СБРОС ПРИ СМЕНЕ СУММЫ ====================
+        document.getElementById('amount').addEventListener('input', function() {
+            if (this.value !== currentAmount) {
+                resetTimer();
+                document.getElementById('qrContainer').classList.remove('show');
+                document.getElementById('message').classList.remove('show');
+                currentAmount = null;
+                document.querySelector('.btn-pay').textContent = '✅ Оплатить';
+                document.querySelector('.btn-pay').disabled = false;
+            }
+        });
+
+        // ==================== ЗАПУСК ====================
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
