@@ -1,12 +1,10 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 app = FastAPI(title="PayDays")
 templates = Jinja2Templates(directory="templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ТВОЙ TRC20 АДРЕС (ЗАМЕНИ!)
 TRC20_ADDRESS = "TDxz3pfEEBEvwx2pcFzRXipemkX2ibM6L4"
