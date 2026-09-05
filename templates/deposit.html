@@ -447,7 +447,7 @@
         </div>
 
         <!-- Форма оплаты -->
-        <form id="paymentForm">
+        <form id="paymentForm" onsubmit="return false;">
             <div class="form-group">
                 <label for="amount">💰 Сумма (USDT)</label>
                 <div class="input-wrapper">
@@ -455,7 +455,7 @@
                 </div>
             </div>
             
-            <button type="submit" class="btn-pay" id="payBtn">✅ Оплатить</button>
+            <button type="button" class="btn-pay" id="payBtn">✅ Оплатить</button>
             
             <button type="button" class="btn-qr" id="qrBtn">📱 Показать QR-код</button>
         </form>
@@ -521,7 +521,6 @@
         const timeoutMsg = document.getElementById('timeoutMessage');
         const timerDisplay = document.getElementById('timer');
         const timerContainer = document.getElementById('timerContainer');
-        const paymentForm = document.getElementById('paymentForm');
 
         let timerInterval = null;
         let timeLeft = 600;
@@ -538,7 +537,6 @@
                     copyBtn.classList.remove('copied');
                 }, 2000);
             }).catch(() => {
-                // Fallback
                 const textarea = document.createElement('textarea');
                 textarea.value = address;
                 document.body.appendChild(textarea);
@@ -617,12 +615,12 @@
             successMsg.classList.remove('show');
         }
 
-        // ==================== QR-КОД ====================
-        qrBtn.addEventListener('click', async function() {
+        // ==================== ОТПРАВКА ЗАЯВКИ ====================
+        async function submitPayment() {
             const amount = amountInput.value;
-            
+
             if (!amount || amount <= 0) {
-                alert('Сначала введите сумму!');
+                alert('Введите сумму!');
                 return;
             }
 
@@ -631,24 +629,26 @@
                 return;
             }
 
-            currentAmount = amount;
+            if (isTimerRunning && timeLeft <= 0) {
+                alert('Время вышло! Начните заново.');
+                return;
+            }
+
+            payBtn.disabled = true;
+            payBtn.textContent = '⏳ Отправка...';
 
             try {
-                const response = await fetch(`/qr/${amount}`);
-                const html = await response.text();
-                
-                qrImage.innerHTML = html;
-                qrContainer.classList.add('show');
-                qrError.classList.remove('show');
-                
-                const img = qrImage.querySelector('img');
-                if (img) {
-                    qrOpenLink.href = img.src;
-                }
-                
-                if (!isTimerRunning) {
-                    startTimer();
-                }
-                
-                successMsg.classList.remove('show');
-                timeoutMsg.classList.remove(
+                const response = await fetch('/payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `amount=${amount}`
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'ok') {
+                    successMsg.textContent = `✅ Заявка на ${amount} USDT отправлена!`;
+                    successMsg.classList.add('show');
+                    payBtn.textCont
