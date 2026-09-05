@@ -81,6 +81,7 @@
             border-radius: 14px;
             border: 1px solid rgba(200, 0, 0, 0.1);
             margin: 16px 0;
+            position: relative;
         }
 
         .address-label {
@@ -91,14 +92,53 @@
             margin-bottom: 4px;
         }
 
+        .address-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
         .address {
             font-family: 'Courier New', monospace;
-            font-size: 14px;
+            font-size: 13px;
             color: #fff;
             word-break: break-all;
+            flex: 1;
         }
 
         .address .highlight { color: #ff4444; }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .copy-btn.copied {
+            background: rgba(46, 160, 67, 0.3);
+            border-color: #2ea043;
+            color: #3fb950;
+        }
+
+        .full-address {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.1);
+            margin-top: 4px;
+            font-family: monospace;
+            word-break: break-all;
+        }
 
         .qr-container {
             display: none;
@@ -108,6 +148,7 @@
             background: rgba(255, 255, 255, 0.05);
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
         }
 
         .qr-container.show {
@@ -127,6 +168,50 @@
             margin-top: 12px;
             color: rgba(255, 255, 255, 0.4);
             font-size: 13px;
+        }
+
+        .qr-error {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(200, 0, 0, 0.15);
+            border-radius: 10px;
+            border: 1px solid rgba(200, 0, 0, 0.3);
+        }
+
+        .qr-error.show {
+            display: block;
+        }
+
+        .qr-error a {
+            color: #ff4444;
+            text-decoration: underline;
+        }
+
+        .timer-container {
+            text-align: center;
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .timer {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ff4444;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer.warning {
+            color: #ff8800;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         .form-group {
@@ -230,6 +315,44 @@
             transform: scale(0.96);
         }
 
+        .btn-qr:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .social-btn:active {
+            transform: scale(0.96);
+        }
+
+        .social-btn.telegram {
+            background: linear-gradient(135deg, #0088cc, #005f8a);
+            color: #fff;
+        }
+
+        .social-btn.support {
+            background: linear-gradient(135deg, #2ea043, #1a7a32);
+            color: #fff;
+        }
+
         .back-link {
             display: block;
             text-align: center;
@@ -262,12 +385,31 @@
             animation: fadeUp 0.3s ease-out;
         }
 
+        .timeout-message {
+            display: none;
+            background: rgba(200, 0, 0, 0.15);
+            border: 1px solid #cc0000;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 12px;
+            color: #ff4444;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .timeout-message.show {
+            display: block;
+            animation: fadeUp 0.3s ease-out;
+        }
+
         @media (max-width: 400px) {
             .card { padding: 20px 16px; }
             h2 { font-size: 19px; }
             input { font-size: 17px; padding: 12px 12px 12px 34px; }
             .btn-pay { font-size: 16px; padding: 14px; }
             .qr-container img { max-width: 200px; }
+            .address { font-size: 11px; }
+            .social-buttons { flex-direction: column; }
         }
     </style>
 </head>
@@ -284,17 +426,27 @@
             </div>
         </div>
 
+        <!-- Адрес с кнопкой копирования -->
         <div class="address-box">
             <div class="address-label">📤 Адрес TRC20</div>
-            <div class="address">
-                {{ address[:6] }}<span class="highlight">...</span>{{ address[-6:] }}
+            <div class="address-wrapper">
+                <div class="address">
+                    {{ address[:6] }}<span class="highlight">...</span>{{ address[-6:] }}
+                </div>
+                <button class="copy-btn" id="copyBtn">📋 Копировать</button>
             </div>
-            <div style="font-size:10px; color:rgba(255,255,255,0.1); margin-top:4px; font-family:monospace;">
-                {{ address }}
-            </div>
+            <div class="full-address">{{ address }}</div>
         </div>
 
-        <!-- ФОРМА ОПЛАТЫ -->
+        <!-- Таймер -->
+        <div class="timer-container" id="timerContainer">
+            <div style="font-size:12px; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">
+                ⏱️ Время на оплату
+            </div>
+            <div class="timer" id="timer">10:00</div>
+        </div>
+
+        <!-- Форма оплаты -->
         <form id="paymentForm">
             <div class="form-group">
                 <label for="amount">💰 Сумма (USDT)</label>
@@ -312,10 +464,11 @@
         <div id="qrContainer" class="qr-container">
             <div id="qrImage"></div>
             <div class="qr-hint">
-                📸 Отсканируйте камерой телефона<br>
-                <span style="font-size:12px; color:rgba(255,255,255,0.2);">
-                    Откроется кошелёк с заполненными данными
-                </span>
+                📸 Отсканируйте камерой телефона
+            </div>
+            <div class="qr-error" id="qrError">
+                ⚠️ Не загружается? 
+                <a href="#" id="qrOpenLink" target="_blank">Открыть изображение в новой вкладке</a>
             </div>
         </div>
 
@@ -324,11 +477,26 @@
             ✅ Заявка отправлена! Оплатите по адресу выше.
         </div>
 
+        <!-- Сообщение о таймауте -->
+        <div id="timeoutMessage" class="timeout-message">
+            ⏰ Время вышло! Заявка отменена. Начните заново.
+        </div>
+
+        <!-- Социальные кнопки -->
+        <div class="social-buttons">
+            <a href="https://t.me/MIAYBESENDs" target="_blank" class="social-btn telegram">
+                📢 Канал
+            </a>
+            <a href="https://t.me/MIAYBESEND" target="_blank" class="social-btn support">
+                💬 Поддержка
+            </a>
+        </div>
+
         <a href="/" class="back-link">← На главную</a>
     </div>
 
     <script>
-        // Telegram Web App
+        // ==================== ТЕЛЕГРАМ ====================
         if (window.Telegram && Telegram.WebApp) {
             const tg = Telegram.WebApp;
             tg.expand();
@@ -339,14 +507,122 @@
             document.body.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#ffffff');
         }
 
+        // ==================== ЭЛЕМЕНТЫ ====================
+        const address = "{{ address }}";
+        const copyBtn = document.getElementById('copyBtn');
         const amountInput = document.getElementById('amount');
         const payBtn = document.getElementById('payBtn');
         const qrBtn = document.getElementById('qrBtn');
         const qrContainer = document.getElementById('qrContainer');
         const qrImage = document.getElementById('qrImage');
+        const qrError = document.getElementById('qrError');
+        const qrOpenLink = document.getElementById('qrOpenLink');
         const successMsg = document.getElementById('successMessage');
+        const timeoutMsg = document.getElementById('timeoutMessage');
+        const timerDisplay = document.getElementById('timer');
+        const timerContainer = document.getElementById('timerContainer');
 
-        // Генерация QR-кода
+        let timerInterval = null;
+        let timeLeft = 600; // 10 минут в секундах
+        let isTimerRunning = false;
+        let currentAmount = null;
+
+        // ==================== КОПИРОВАНИЕ ====================
+        copyBtn.addEventListener('click', async function() {
+            try {
+                await navigator.clipboard.writeText(address);
+                copyBtn.textContent = '✅ Скопировано!';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.textContent = '📋 Копировать';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                // Fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = address;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                copyBtn.textContent = '✅ Скопировано!';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.textContent = '📋 Копировать';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            }
+        });
+
+        // ==================== ТАЙМЕР ====================
+        function startTimer() {
+            if (isTimerRunning) return;
+            isTimerRunning = true;
+            timeLeft = 600;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    isTimerRunning = false;
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            if (timeLeft <= 60) {
+                timerDisplay.classList.add('warning');
+            } else {
+                timerDisplay.classList.remove('warning');
+            }
+        }
+
+        function handleTimeout() {
+            // Отключаем всё
+            payBtn.disabled = true;
+            qrBtn.disabled = true;
+            amountInput.disabled = true;
+            
+            // Показываем сообщение
+            timeoutMsg.classList.add('show');
+            successMsg.classList.remove('show');
+            qrContainer.classList.remove('show');
+            
+            // Убираем таймер
+            timerDisplay.textContent = '⏰ Время вышло!';
+            
+            if (window.Telegram && Telegram.WebApp) {
+                Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+            }
+        }
+
+        function resetTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            isTimerRunning = false;
+            timeLeft = 600;
+            updateTimerDisplay();
+            timerDisplay.classList.remove('warning');
+            
+            // Включаем всё обратно
+            payBtn.disabled = false;
+            qrBtn.disabled = false;
+            amountInput.disabled = false;
+            timeoutMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+        }
+
+        // ==================== QR-КОД ====================
         qrBtn.addEventListener('click', async function() {
             const amount = amountInput.value;
             
@@ -360,73 +636,20 @@
                 return;
             }
 
+            currentAmount = amount;
+
             // Показываем QR
-            qrImage.innerHTML = `
-                <img src="/qr/${amount}" alt="QR-код для оплаты ${amount} USDT">
-                <div style="margin-top:8px; color:#ff4444; font-weight:600;">
-                    ${amount} USDT
-                </div>
-            `;
-            qrContainer.classList.add('show');
-            
-            // Прячем сообщение об успехе
-            successMsg.classList.remove('show');
-        });
-
-        // Отправка формы
-        document.getElementById('paymentForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const amount = amountInput.value;
-
-            if (!amount || amount <= 0) {
-                alert('Введите сумму!');
-                return;
-            }
-
-            if (amount < 1) {
-                alert('Минимальная сумма 1 USDT');
-                return;
-            }
-
-            payBtn.disabled = true;
-            payBtn.textContent = '⏳ Отправка...';
-
             try {
-                const response = await fetch('/payment', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `amount=${amount}`
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'ok') {
-                    successMsg.textContent = `✅ Заявка на ${amount} USDT отправлена!`;
-                    successMsg.classList.add('show');
-                    payBtn.textContent = '✅ Готово';
-                    
-                    // Автоматически показываем QR
-                    setTimeout(() => {
-                        qrBtn.click();
-                    }, 500);
-                    
-                    if (window.Telegram && Telegram.WebApp) {
-                        Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                    }
-                } else {
-                    alert('Ошибка! Попробуйте ещё раз.');
-                    payBtn.textContent = '✅ Оплатить';
-                    payBtn.disabled = false;
+                const response = await fetch(`/qr/${amount}`);
+                const html = await response.text();
+                
+                qrImage.innerHTML = html;
+                qrContainer.classList.add('show');
+                qrError.classList.remove('show');
+                
+                // Сохраняем ссылку для открытия в новой вкладке
+                const img = qrImage.querySelector('img');
+                if (img) {
+                    qrOpenLink.href = img.src;
                 }
-            } catch (error) {
-                alert('Ошибка соединения! Проверьте интернет.');
-                payBtn.textContent = '✅ Оплатить';
-                payBtn.disabled = false;
-            }
-        });
-    </script>
-</body>
-</html>
+          
