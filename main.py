@@ -14,9 +14,8 @@ templates = Jinja2Templates(directory="templates")
 # ============================================
 TRC20_ADDRESS = "TDxz3pfEEBEvwx2pCfzRXipemkX2ibM6L4"
 BOT_USERNAME = "твой_бот"
-WEBAPP_URL = "https://bot1-export.onrender.com"  # ИЛИ ТВОЯ НОВАЯ ССЫЛКА
+WEBAPP_URL = "https://bot1-export.onrender.com"
 # ============================================
-
 
 # ==================== ГЛАВНАЯ СТРАНИЦА ====================
 @app.get("/", response_class=HTMLResponse)
@@ -27,7 +26,6 @@ async def landing(request: Request):
         "webapp_url": WEBAPP_URL
     })
 
-
 # ==================== СТРАНИЦА ОПЛАТЫ ====================
 @app.get("/deposit", response_class=HTMLResponse)
 async def deposit_page(request: Request):
@@ -37,18 +35,15 @@ async def deposit_page(request: Request):
         "bot_username": BOT_USERNAME
     })
 
-
 # ==================== ОБРАБОТКА ОПЛАТЫ ====================
 @app.post("/payment")
 async def payment(amount: float = Form(...)):
-    # Проверка суммы
     if amount < 1:
         return JSONResponse(
             status_code=400,
             content={"status": "error", "message": "Минимальная сумма 1 USDT"}
         )
     
-    # Здесь можно сохранить в БД
     print(f"💳 Новая заявка: {amount} USDT на адрес {TRC20_ADDRESS}")
     
     return {
@@ -57,43 +52,46 @@ async def payment(amount: float = Form(...)):
         "address": TRC20_ADDRESS
     }
 
-
 # ==================== ГЕНЕРАЦИЯ QR-КОДА ====================
 @app.get("/qr/{amount}")
 async def generate_qr(amount: float):
-    # Проверка суммы
-    if amount < 1:
-        return JSONResponse(
-            status_code=400,
-            content={"status": "error", "message": "Минимальная сумма 1 USDT"}
+    try:
+        if amount < 1:
+            return JSONResponse(
+                status_code=400,
+                content={"status": "error", "message": "Минимальная сумма 1 USDT"}
+            )
+        
+        # Формируем строку для оплаты
+        payment_data = f"tron:{TRC20_ADDRESS}?amount={amount}&token=USDT"
+        
+        # Создаём QR-код
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=10,
+            border=4,
         )
-    
-    # Формируем строку для оплаты в USDT (TRC20)
-    payment_data = f"tron:{TRC20_ADDRESS}?amount={amount}&token=USDT"
-    
-    # Создаём QR-код
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(payment_data)
-    qr.make(fit=True)
-    
-    # Создаём изображение
-    img = qr.make_image(fill_color="black", back_color="white")
-    
-    # Конвертируем в base64 для вставки в HTML
-    buffered = BytesIO()
-    img.save(buffered, format="PNG")
-    img_str = base64.b64encode(buffered.getvalue()).decode()
-    
-    return Response(
-        content=f'<img src="data:image/png;base64,{img_str}" style="max-width:300px; width:100%; border-radius:12px; background:white; padding:10px;"/>',
-        media_type="text/html"
-    )
-
+        qr.add_data(payment_data)
+        qr.make(fit=True)
+        
+        # Создаём изображение
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        # Конвертируем в base64
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+        
+        # Возвращаем HTML с картинкой
+        return HTMLResponse(
+            content=f'<img src="data:image/png;base64,{img_str}" style="max-width:300px; width:100%; border-radius:12px; background:white; padding:10px;"/>'
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "message": f"Ошибка: {str(e)}"}
+        )
 
 # ==================== ЗАПУСК ====================
 if __name__ == "__main__":
