@@ -521,23 +521,23 @@
         const timeoutMsg = document.getElementById('timeoutMessage');
         const timerDisplay = document.getElementById('timer');
         const timerContainer = document.getElementById('timerContainer');
+        const paymentForm = document.getElementById('paymentForm');
 
         let timerInterval = null;
-        let timeLeft = 600; // 10 минут в секундах
+        let timeLeft = 600;
         let isTimerRunning = false;
         let currentAmount = null;
 
         // ==================== КОПИРОВАНИЕ ====================
-        copyBtn.addEventListener('click', async function() {
-            try {
-                await navigator.clipboard.writeText(address);
+        copyBtn.addEventListener('click', function() {
+            navigator.clipboard.writeText(address).then(() => {
                 copyBtn.textContent = '✅ Скопировано!';
                 copyBtn.classList.add('copied');
                 setTimeout(() => {
                     copyBtn.textContent = '📋 Копировать';
                     copyBtn.classList.remove('copied');
                 }, 2000);
-            } catch (err) {
+            }).catch(() => {
                 // Fallback
                 const textarea = document.createElement('textarea');
                 textarea.value = address;
@@ -551,7 +551,7 @@
                     copyBtn.textContent = '📋 Копировать';
                     copyBtn.classList.remove('copied');
                 }, 2000);
-            }
+            });
         });
 
         // ==================== ТАЙМЕР ====================
@@ -586,17 +586,13 @@
         }
 
         function handleTimeout() {
-            // Отключаем всё
             payBtn.disabled = true;
             qrBtn.disabled = true;
             amountInput.disabled = true;
             
-            // Показываем сообщение
             timeoutMsg.classList.add('show');
             successMsg.classList.remove('show');
             qrContainer.classList.remove('show');
-            
-            // Убираем таймер
             timerDisplay.textContent = '⏰ Время вышло!';
             
             if (window.Telegram && Telegram.WebApp) {
@@ -614,7 +610,6 @@
             updateTimerDisplay();
             timerDisplay.classList.remove('warning');
             
-            // Включаем всё обратно
             payBtn.disabled = false;
             qrBtn.disabled = false;
             amountInput.disabled = false;
@@ -638,7 +633,6 @@
 
             currentAmount = amount;
 
-            // Показываем QR
             try {
                 const response = await fetch(`/qr/${amount}`);
                 const html = await response.text();
@@ -647,9 +641,14 @@
                 qrContainer.classList.add('show');
                 qrError.classList.remove('show');
                 
-                // Сохраняем ссылку для открытия в новой вкладке
                 const img = qrImage.querySelector('img');
                 if (img) {
                     qrOpenLink.href = img.src;
                 }
-          
+                
+                if (!isTimerRunning) {
+                    startTimer();
+                }
+                
+                successMsg.classList.remove('show');
+                timeoutMsg.classList.remove(
