@@ -5,3 +5,4 @@ python-telegram-bot==20.6
 python-multipart
 qrcode
 Pillow
+requests
